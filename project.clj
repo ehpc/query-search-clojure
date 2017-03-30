@@ -7,7 +7,9 @@
                  [ring/ring-core "1.6.0-RC1"]
                  [ring/ring-jetty-adapter "1.6.0-RC1"]
                  [ring/ring-defaults "0.2.3"]
-                 [compojure "1.5.2"]]
+                 [compojure "1.5.2"]
+                 [cheshire "5.7.0"]
+                 [com.github.kyleburton/clj-xpath "1.4.11"]]
   :main ^:skip-aot query-search.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}

@@ -35,29 +35,21 @@ API /search
 Когда пользователь обращается по URI /search?query=bdd
 То в ответ приходит JSON:
 {
-    "vk.com": 18,
-    "sql.ru": 1,
-    "bookpedia.ru": 1
+    "vk.com": 10
 }
 
 
 Сценарий: Статистика по двум запросам сразу
-Если ранее выполнялись только запросы по URI /search?query=scala и /search?query=bdd
-И текущий запрос является четвертым по счёту
 Когда пользователь обращается по URI /search?query=puppy&query=yabadabadoo
 То в ответ приходит JSON:
 {
-    "vk.com": 27,
-    "sql.ru": 1,
-    "bookpedia.ru": 1,
+    "vk.com": 8,
     "nfoservers.com": 1,
     "livejournal.com": 1
 }
 
 
 Сценарий: Запрос с русскими буквами
-Если система запущена впервые
-И текущий запрос является первым по счёту
 Когда пользователь обращается по URI /search?query=запрос
 То в ответ приходит JSON:
 {
