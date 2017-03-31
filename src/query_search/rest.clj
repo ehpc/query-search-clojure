@@ -2,11 +2,18 @@
   "Модуль REST API"
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]))
+            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [org.httpkit.server :as server]
+            [clojure.core.async :refer [go]]))
+
+(defn process-search
+  "Обработчик поискового запроса."
+  [{{query :query} :params} channel]
+  (go (server/send! channel query)))
 
 (def search
   "Маршрут API /search."
-  (GET "/search" {{query :query} :params} (str "Query:" query)))
+  (GET "/search" request (server/with-channel request channel (process-search request channel))))
 
 (def error
   "Маршрут 404."

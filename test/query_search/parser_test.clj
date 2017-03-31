@@ -1,4 +1,5 @@
 (ns query-search.parser-test
+  "Тестирование парсера ответа поиска по блогам."
   (:require [clojure.test :refer :all]
             [query-search.blog-search :refer [search]]
             [query-search.parser :refer :all]))

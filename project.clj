@@ -4,8 +4,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [ring/ring-core "1.6.0-RC1"]
-                 [ring/ring-jetty-adapter "1.6.0-RC1"]
+                 [org.clojure/core.async "0.3.442"]
+                 [http-kit "2.2.0"]
                  [ring/ring-defaults "0.2.3"]
                  [compojure "1.5.2"]
                  [cheshire "5.7.0"]
