@@ -4,7 +4,8 @@
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [org.httpkit.server :as server]
-            [clojure.core.async :refer [go]]))
+            [clojure.core.async :refer [go]]
+            []))
 
 (defn process-search
   "Обработчик поискового запроса."

@@ -1,1 +1,3 @@
-{:port 8080}
+{:port 8080 ; Порт, на котором будет работать сервер
+ :api-url "http://em42-dev.ru/mock/ybs.php?text="} ; Адрес API поиска по блогам
+ ;:api-url "http://yandex.ru/blogs/rss/search?numdoc=10&text="} ; Адрес API поиска по блогам

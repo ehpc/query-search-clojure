@@ -40,12 +40,13 @@ API /search
 
 
 Сценарий: Статистика по двум запросам сразу
-Когда пользователь обращается по URI /search?query=puppy&query=yabadabadoo
+Когда пользователь обращается по URI /search?query=puppy&query=livejournal
 То в ответ приходит JSON:
 {
     "vk.com": 8,
-    "nfoservers.com": 1,
-    "livejournal.com": 1
+    "twitter.com": 2,
+    "livejournal.com": 8,
+    "kharkovforum.com": 1
 }
 
 

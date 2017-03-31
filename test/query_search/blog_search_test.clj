@@ -6,4 +6,4 @@
 
 (deftest search-test
   (testing "Поиск по блогам."
-    (is (includes? (search ["scala"]) "yablogs:author"))))
+    (is (includes? @(search ["scala"]) "yablogs:author"))))

@@ -1,17 +1,16 @@
 (ns query-search.parser
   "Парсер ответа поиска по блогам."
-  (:require [clj-xpath.core :as xpath])
-  (:import [java.io ByteArrayInputStream]))
+  (:require [clj-xpath.core :as xpath]))
 
-(defn get-links
+(defn- get-links
   "Достаёт ссылки из ответа."
   [xml]
   (map #(:text %) (xpath/$x "/rss/channel/item/link" xml)))
 
-(defn get-domains
+(defn- get-domains
   "Достаёт домены из ссылок."
   [links]
-  (frequencies (map #(re-find #"\w+\.\w+(?=[/?#])" (str % "/")) links)))
+  (map #(vec [(re-find #"\w+\.\w+(?=[/?#])" (str % "/")) %]) links))
 
 (defn parse
   "Извлекает домены из XML."
