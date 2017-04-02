@@ -8,6 +8,6 @@
 
 (defn -main
   "Точка входа в приложение."
-  [& args
-   (log "Запускаем сервер со следующими настройками:" settings/get-settings)
-   (server/run-server handler {:port (settings/get-setting "port")})]) ; Запускаем веб-сервер
+  [& args]
+  (log "Запускаем сервер со следующими настройками:" settings/get-settings)
+  (server/run-server handler {:port (settings/get-setting "port")})) ; Запускаем веб-сервер

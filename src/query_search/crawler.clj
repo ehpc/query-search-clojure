@@ -10,9 +10,13 @@
   (log "Загружаем веб-страницы:" (apply str requests))
   (future
     (reduce
-      #(conj %1 (:body @%2))
+      #(conj %1 (:body (spy "Ответ функции загрузки:" @%2))) ; Достаём тело ответа
       []
-      (doall
+      (map
+        http/request
         (map
-          (fn [request] (http/get (:url request) {:query-params (:params request)}))
+          (fn
+            [request]
+            (spy "Входящие параметры функции загрузки:"
+                 (hash-map :url (:url request) :query-params (:params request))))
           requests)))))

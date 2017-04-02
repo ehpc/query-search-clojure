@@ -1,7 +1,8 @@
 (ns query-search.logger
   "Модуль логирования."
   (:require [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.core :as appenders]))
+            [taoensso.timbre.appenders.core :as appenders]
+            [query-search.settings :as settings]))
 
 ;;; Настройки логирования
 (def log-file-name "log/default.log")
@@ -21,4 +22,6 @@
 (defn spy
   "Логирует возвращая значение."
   [& args]
-  (apply-macro 'taoensso.timbre/spy (cons :debug args)))
+  (if settings/dev?
+    (apply-macro 'taoensso.timbre/spy (cons :debug args))
+    (last args)))
