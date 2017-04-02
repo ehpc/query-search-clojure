@@ -1,3 +1,6 @@
-{:port 8080 ; Порт, на котором будет работать сервер
- :api-url "http://em42-dev.ru/mock/ybs.php?text="} ; Адрес API поиска по блогам
- ;:api-url "http://yandex.ru/blogs/rss/search?numdoc=10&text="} ; Адрес API поиска по блогам
+{:env :dev ; Режим работы приложения [:dev - режим разработки, :prod - промышленный режим]
+ :port 8080 ; Порт, на котором будет работать сервер
+ :api-url-prod "http://yandex.ru/blogs/rss/search" ; Адрес API поиска по блогам
+ :api-url-dev "http://em42-dev.ru/mock/ybs.php" ; Адрес API поиска по блогам для отладки
+ :numdoc 10 ; Количество результатов поиска в ответе посика по блогам
+ :max-concurrent-requests 2} ; Максимальное количество одновременных запросов к API поиска по блогам

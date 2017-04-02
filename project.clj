@@ -9,7 +9,8 @@
                  [ring/ring-defaults "0.2.3"]
                  [compojure "1.5.2"]
                  [cheshire "5.7.0"]
-                 [com.github.kyleburton/clj-xpath "1.4.11"]]
+                 [com.github.kyleburton/clj-xpath "1.4.11"]
+                 [com.taoensso/timbre "4.8.0"]]
   :main ^:skip-aot query-search.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}

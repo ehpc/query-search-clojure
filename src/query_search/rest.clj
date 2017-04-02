@@ -5,11 +5,12 @@
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [org.httpkit.server :as server]
             [clojure.core.async :refer [go]]
-            []))
+            [query-search.logger :refer :all]))
 
 (defn process-search
   "Обработчик поискового запроса."
   [{{query :query} :params} channel]
+  (log "Обрабатываем запрос /search:" query)
   (go (server/send! channel query)))
 
 (def search

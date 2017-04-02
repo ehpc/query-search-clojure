@@ -1,12 +1,13 @@
 (ns query-search.core
   "Головной модуль приложения."
   (:gen-class)
-  (:require [query-search.settings]
+  (:require [query-search.settings :as settings]
             [query-search.rest :refer [handler]]
-            [org.httpkit.server :as server]))
+            [org.httpkit.server :as server]
+            [query-search.logger :refer :all]))
 
 (defn -main
   "Точка входа в приложение."
-  [& args]
-  (let [settings (query-search.settings/get-settings)] ; Получаем настройки приложения
-    (server/run-server handler {:port (:port settings)}))) ; Запускаем веб-сервер
+  [& args
+   (log "Запускаем сервер со следующими настройками:" settings/get-settings)
+   (server/run-server handler {:port (settings/get-setting "port")})]) ; Запускаем веб-сервер

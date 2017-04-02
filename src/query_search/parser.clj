@@ -1,6 +1,7 @@
 (ns query-search.parser
   "Парсер ответа поиска по блогам."
-  (:require [clj-xpath.core :as xpath]))
+  (:require [clj-xpath.core :as xpath]
+            [query-search.logger :refer :all]))
 
 (defn- get-links
   "Достаёт ссылки из ответа."
@@ -15,4 +16,5 @@
 (defn parse
   "Извлекает домены из XML."
   [xml]
+  (log "Извлекаем домены из XML")
   (get-domains (get-links xml)))
