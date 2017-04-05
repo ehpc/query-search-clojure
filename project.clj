@@ -10,7 +10,8 @@
                  [compojure "1.5.2"]
                  [cheshire "5.7.0"]
                  [com.github.kyleburton/clj-xpath "1.4.11"]
-                 [com.taoensso/timbre "4.8.0"]]
+                 [com.taoensso/timbre "4.8.0"]
+                 [com.taoensso/tufte "1.1.1"]]
   :main ^:skip-aot query-search.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
