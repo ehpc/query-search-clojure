@@ -1,8 +1,7 @@
 (ns query-search.profiler
   "Модуль профилирования."
-  (:require [taoensso.tufte :as tufte])
-  (:import [java.util Date]
-           [java.text SimpleDateFormat]))
+  (:require [taoensso.tufte :as tufte]
+            [query-search.common :refer :all]))
 
 (defmacro profile
   "Замеряет время выполнения формы, возвращает миллисекунды."
@@ -10,5 +9,5 @@
   `(* (:total (:clock (last (tufte/profiled {} ~form)))) 0.000001))
 
 (defn label
-  [message] ; SimpleDateFormat("MM-dd-yyyy").format(myDate)
-  (println (format "\n[%s] %s\n" (.format (SimpleDateFormat. "HH:mm:ss.SSS") (Date.)) message)))
+  [message]
+  (println (format "\n[%s] %s\n" (get-datetime) message)))

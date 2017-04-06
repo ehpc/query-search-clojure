@@ -4,10 +4,19 @@
             [org.httpkit.client :as http]
             [query-search.logger :refer :all]
             [query-search.settings :as settings]
-            [query-search.profiler :refer :all]))
+            [query-search.profiler :refer :all]
+            [query-search.common :refer :all]))
 
 ;;; Максимальное количество одновременных запросов
 (def max-concurrent-requests (settings/get-setting "max-concurrent-requests"))
+
+;;; Счётчик максимального количество одновременных запросов за время жизни сервиса.
+;;; Используется для тестирования.
+(def max-concurrent-requests-count (atom 0))
+
+;;; Счётчик текущего количества одновременных запросов.
+;;; Используется для тестирования.
+(def current-concurrent-requests-count (atom 0))
 
 ;;; Очередь выполнения
 (def queue-channel (chan max-concurrent-requests))
@@ -20,7 +29,7 @@
   [params]
   (future
     (Thread/sleep (:delay params))
-    {:body params}))
+    {:body params :uuid (:uuid params)}))
 
 (defn execute-request
   "Выполняет запрос, дожидаясь его завершения, чтобы убрать его из очереди."
@@ -28,15 +37,22 @@
   (spy "Запрос выполняется" request-params)
   (let [result @(request-fn request-params)]
     (>!! queue-channel true) ; Освобождаем слот очереди
+    (swap! current-concurrent-requests-count dec) ; Уменьшаем счётчик текущих одновременных запросов
     (spy "Запрос выполнен" request-params)
-    result))
+    (assoc result :uuid (:uuid request-params))))
 
 (defn queue-request
   "Добавляет запрос в очередь на обработку."
   [request-fn request-params]
   (future
-    (<!! queue-channel) ; Занимаем слот в очереди
-    (execute-request request-fn request-params))) ; Выполняем запрос
+    ;; Занимаем слот в очереди
+    (<!! queue-channel)
+    ;; Увеличиваем счётчик текущих одновременных запросов
+    (swap! current-concurrent-requests-count inc)
+    ;; Обновляем счётчик максимального количества одновременных запросов
+    (swap! max-concurrent-requests-count (fn [x y] (if (> y x) y x)) @current-concurrent-requests-count)
+    ;; Добавляем идентификатор и выполняем запрос
+    (execute-request request-fn request-params)))
 
 (defn create-request-collection
   "Создаёт коллекцию запросов для постановки в очередь."
@@ -46,13 +62,13 @@
       [request]
       (spy "Входящие параметры загрузки:"
         (if (:fake request) ; Подставной или нормальный запрос
-          [fake-request request]
-          [http/request (hash-map :url (:url request) :query-params (:params request))])))
+          [fake-request (assoc request :uuid (generate-uuid))]
+          [http/request (hash-map :uuid (generate-uuid) :url (:url request) :query-params (:params request))])))
     requests))
 
 (defn crawl
   "Загружает веб-страницы."
-  [requests]
+  [requests & {:keys [full-response?] :or {:full-response? false}}]
   (log "Загружаем веб-страницы:" (apply str requests))
   (future
     (let [n (count requests)
@@ -66,5 +82,16 @@
           (swap! completion-queue conj @(queue-request (first request) (last request)))
           (when (= (count @completion-queue) n) ; Когда все ответы собраны
             (>! completion-channel @completion-queue)))) ; Отдаём ответы
-      ;; Ждём, пока все запросы не выполнятся, а затем отдаём их ответы
-      (spy "Все ответы запросов:" (<!! completion-channel)))))
+      ;; Ждём, пока все запросы не выполнятся и получаем их ответы
+      (let [responses (spy "Все ответы запросов:" (<!! completion-channel))
+            ;; Сортируем ответы по изначальной очередности запросов
+            responses-sorted (apply
+                               vector
+                               (map
+                                 (fn [x] (first (filter ; Сопоставляет запросы и ответы
+                                                  #(= (:uuid %) (:uuid (last x)))
+                                                  responses)))
+                                 request-collection))]
+        (spy "Отсортированные ответы запросов:" responses-sorted)
+        ;; Возвращаем либо весь ответ, либо только текст ответа
+        (if full-response? responses-sorted (map :body responses-sorted))))))
