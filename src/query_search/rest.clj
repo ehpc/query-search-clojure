@@ -19,7 +19,7 @@
     (let [stats (try
                   @(get-domain-stats-for-blogs
                      (vec (filter (complement blank?) (if (vector? query) query (vector query)))))
-                  (catch Exception e {}))]
+                  (catch Exception e (log (.getMessage e)) {}))]
       (log "Полученная статистика:" stats)
       (server/send! channel (generate-string stats {:pretty true})))))
 
