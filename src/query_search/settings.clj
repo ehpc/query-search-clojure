@@ -3,7 +3,7 @@
   (:require [clojure.java.io :as io]
             [clojure.edn :as edn]))
 
-;; Получаем хэш-таблицу настроек приложения
+;;; Получаем хэш-таблицу настроек приложения
 (def settings (edn/read-string (slurp (io/resource "settings.edn"))))
 
 (defn- get-env-specific-value
@@ -24,5 +24,5 @@
   []
   settings)
 
-;; Приложение запущено в разработческом режиме?
+;;; Приложение запущено в разработческом режиме?
 (def dev? (= (get-setting "env") :dev))

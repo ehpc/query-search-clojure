@@ -3,15 +3,25 @@
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [ring.logger :as logger]
             [org.httpkit.server :as server]
+            [cheshire.core :refer [generate-string]]
+            [clojure.string :refer [blank?]]
             [clojure.core.async :refer [go]]
-            [query-search.logger :refer :all]))
+            [query-search.logger :refer :all]
+            [query-search.stat :refer [get-domain-stats-for-blogs]]))
 
 (defn process-search
   "Обработчик поискового запроса."
   [{{query :query} :params} channel]
   (log "Обрабатываем запрос /search:" query)
-  (go (server/send! channel query)))
+  (go
+    (let [stats (try
+                  @(get-domain-stats-for-blogs
+                     (vec (filter (complement blank?) (if (vector? query) query (vector query)))))
+                  (catch Exception e {}))]
+      (log "Полученная статистика:" stats)
+      (server/send! channel (generate-string stats {:pretty true})))))
 
 (def search
   "Маршрут API /search."
@@ -28,4 +38,4 @@
 
 (def handler
   "Головной обработчик запросов."
-  (wrap-defaults rest-routes api-defaults))
+  (logger/wrap-with-logger (wrap-defaults rest-routes api-defaults)))

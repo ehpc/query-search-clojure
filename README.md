@@ -1,36 +1,34 @@
 # query-search
 
-FIXME: description
+## Запуск
 
-## Installation
+`lein run`
 
-Download from http://example.com/FIXME.
+## Тесты
 
-## Usage
+`lein test`
 
-FIXME: explanation
+Некоторые тесты работают только в режиме **dev**.
 
-    $ java -jar query-search-0.1.0-standalone.jar [args]
+## Структура каталогов
 
-## Options
+```
+.
+|   CHANGELOG.md - Описание версий
+|   project.clj - Настройки Leiningen
+|   README.md - Описание проекта
+|   TODO.md - Служебный файл TODO
+|
+|-- doc - Документация проекта
+|-- log - Логи
+|-- resourses
+|      settings.edn - Настроечный файл приложения
+|
+|-- src - Исходный код
+|   |-- query_search
+|          core.clj - Точка входа в приложение
+|
+|-- stories - BDD-истории
+|-- test - Тесты
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+```

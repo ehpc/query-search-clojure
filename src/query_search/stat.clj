@@ -19,7 +19,15 @@
   "Возвращает статистику доменов для блогов по ключевым словам"
   ([keywords]
    (log "Получаем статистику для" keywords)
-   (future (extract-stats (apply concat (map parser/parse @(blog-search/search keywords))))))
+   (if (empty? keywords)
+       (future {})
+       (future
+         (extract-stats
+           (apply
+             concat
+             (map
+               parser/parse
+               @(blog-search/search keywords)))))))
   ;; Для тестирования
   ([keywords fake-xml]
    (log "Получаем mock-статистику для" keywords)
