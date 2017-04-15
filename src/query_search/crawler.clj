@@ -10,14 +10,6 @@
 ;;; Максимальное количество одновременных запросов
 (def max-concurrent-requests (settings/get-setting "max-concurrent-requests"))
 
-;;; Счётчик максимального количество одновременных запросов за время жизни сервиса.
-;;; Используется для тестирования.
-(def max-concurrent-requests-count (atom 0))
-
-;;; Счётчик текущего количества одновременных запросов.
-;;; Используется для тестирования.
-(def current-concurrent-requests-count (atom 0))
-
 ;;; Очередь выполнения
 (def queue-channel (chan max-concurrent-requests))
 
@@ -37,7 +29,6 @@
   (spy "Запрос выполняется" request-params)
   (let [result @(request-fn request-params)]
     (>!! queue-channel true) ; Освобождаем слот очереди
-    (swap! current-concurrent-requests-count dec) ; Уменьшаем счётчик текущих одновременных запросов
     (spy "Запрос выполнен" request-params)
     (assoc result :uuid (:uuid request-params))))
 
@@ -47,10 +38,6 @@
   (future
     ;; Занимаем слот в очереди
     (<!! queue-channel)
-    ;; Увеличиваем счётчик текущих одновременных запросов
-    (swap! current-concurrent-requests-count inc)
-    ;; Обновляем счётчик максимального количества одновременных запросов
-    (swap! max-concurrent-requests-count (fn [x y] (if (> y x) y x)) @current-concurrent-requests-count)
     ;; Добавляем идентификатор и выполняем запрос
     (execute-request request-fn request-params)))
 

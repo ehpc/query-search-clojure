@@ -2,71 +2,57 @@
   "Тестирование загрузчика веб-страниц."
   (:require [clojure.test :refer :all]
             [clojure.string :refer [includes?]]
-            [query-search.crawler :refer :all]
+            [query-search.limiting-server :as server]
+            [query-search.crawler :refer [crawl]]
             [query-search.settings :as settings]
             [query-search.profiler :refer :all]))
 
-(def request1 {:url "http://httpbin.org/get" :params {"param" "test1"}})
-(def request2 {:url "http://httpbin.org/get" :params {"param" "test2"}})
-(def request3 {:url "http://httpbin.org/get" :params {"param" "test3"}})
-(def request-ru {:url "http://httpbin.org/get" :params {"param" "русские-буквы"}})
-(def fake-delay 1000)
-(def fake-request1 {:fake true :delay fake-delay})
-(def fake-request2 {:fake true :delay 2000})
-(def fake-request3 {:fake true :delay 500})
+(def max-concurrent-requests (settings/get-setting "max-concurrent-requests"))
+
+;;; Запрос на ограничивающий сервер
+(def limiting-server-request {:url "http://localhost:9197/" :params {"return" "1"}})
+
+
+(defn limiting-server-fixture
+  "Fixture для тестирования одновременных запросов к серверу.
+   Запускает и останавливает ограничивающий сервер."
+  [f]
+  (let [stop (server/start)]
+    (f)
+    (try (stop :timeout 500) (catch Exception e)))) ; Иногда вылетает из-за багнутого HttpServer.stop в http-kit
+
+
+(defn string-to-int
+  "Преобразует строку в число."
+  [x]
+  (cond (= x "") 0
+        (string? x) (Integer/parseInt x)
+        :else x))
+
+
+(defn aggregate-limiting-server-responses
+  "Собирает ответы ограничивающего сервера в один."
+  [acc x]
+  (+ (string-to-int acc) (string-to-int x)))
+
+
+(use-fixtures :once limiting-server-fixture)
+
 
 (deftest crawl-test
-  (testing "Очередь выполнения на фиктивных запросах."
-    (let [n (inc (* max-concurrent-requests 2)) ; Количество запросов в пуле
-          requests (map #(assoc % :id (rand-int 10000)) (take n (repeat fake-request3))) ; Фиктивные запросы
-          responses @(crawl requests)]
-      (is (= @max-concurrent-requests-count max-concurrent-requests)))
-    (let [n (inc (* max-concurrent-requests 2)) ; Количество запросов в пуле
-          requests (map #(assoc % :id (rand-int 10000)) (take n (repeat fake-request1))) ; Фиктивные запросы
-          responses @(crawl requests :full-response? true)
-          t1 (profile @(crawl requests))
-          t1-min (/ (* n fake-delay) max-concurrent-requests) ; Минмальное ожидаемое время отработки
-          t1-max (+ t1-min fake-delay 400)] ; Максимальное ожидаемое время отработки
-      (is (< t1-min t1 t1-max) "Одинаковые по времени запросы выполняются нужное количество времени."))
-    (let [n (inc (* max-concurrent-requests 2)) ; Количество запросов в пуле
-          requests (map #(assoc % :id (rand-int 10000)) [fake-request2 fake-request3 fake-request3]) ; Фиктивные запросы
-          responses @(crawl requests :full-response? true)
-          request-ids (apply str (map #(str (:id %) ",") requests))
-          response-ids (apply str (map #(str (:id (:body %)) ",") responses))]
-      (is (= request-ids response-ids) "Ответы приходят в том же порядке, в котором уходят запросы.")))
-  (testing "Очередь выполнения на реальных запросах."
-    (is
-      (=
-        (reduce
-          #(str %1 (re-find #"\"test\d\"" %2))
-          ""
-          @(crawl [request1 request2 request3 request2 request1]))
-        "\"test1\"\"test2\"\"test3\"\"test2\"\"test1\"")
-      "Пять страниц загружаются успешно и ответ приходит в правильном порядке."))
-  (testing "Загрузка веб-страницы."
-    (is
-      (includes?
-        (first
-          @(crawl [request1])) "\"test1\"")
-      "Одна страница загружается успешно.")
-    (is
-      (=
-        (reduce
-          #(str %1 (re-find #"\"test\d\"" %2))
-          ""
-          @(crawl [request1 request2]))
-        "\"test1\"\"test2\"")
-      "Две страницы загружаются успешно.")
-    (is
-      (=
-        (reduce
-          #(str %1 (re-find #"\"test\d\"" %2))
-          ""
-          @(crawl [request1 request2 request3]))
-        "\"test1\"\"test2\"\"test3\"")
-      "Три страницы загружаются успешно.")
-    (is
-      (includes?
-        (first
-          @(crawl [request-ru])) "\"param\"")
-      "Кириллический запрос загружается успешно.")))
+  (testing "Один запрос отрабатывает успешно."
+    (= 1 (reduce aggregate-limiting-server-responses @(crawl [limiting-server-request]))))
+  (testing "Запрос возвращает правильные данные."
+    (= 42 (reduce aggregate-limiting-server-responses @(crawl [(assoc limiting-server-request :params {"return" 42})]))))
+  (testing "Максимальное количество одноременных запросов отрабатывает успешно."
+    (= max-concurrent-requests (reduce
+                                 aggregate-limiting-server-responses
+                                 @(crawl (repeat max-concurrent-requests limiting-server-request)))))
+  (testing "Если число запросов (N) превысило максимальное на 1, то успешно отработают только N - 1 запросов."
+    (= max-concurrent-requests (reduce
+                                 aggregate-limiting-server-responses
+                                 @(crawl (repeat (inc max-concurrent-requests) limiting-server-request)))))
+  (testing "Если число запросов (N) превысило максимальное на 3, то успешно отработают только N - 3 запросов."
+    (= max-concurrent-requests (reduce
+                                 aggregate-limiting-server-responses
+                                 @(crawl (repeat (+ 3 max-concurrent-requests) limiting-server-request))))))

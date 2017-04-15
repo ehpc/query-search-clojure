@@ -11,3 +11,4 @@ pom.xml.asc
 .hg/
 .idea
 *.log
+query-search.iml

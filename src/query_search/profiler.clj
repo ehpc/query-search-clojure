@@ -9,5 +9,6 @@
   `(* (:total (:clock (last (tufte/profiled {} ~form)))) 0.000001))
 
 (defn label
+  "Выводит метку на экран."
   [message]
   (println (format "\n[%s] %s\n" (get-datetime) message)))
