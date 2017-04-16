@@ -8,20 +8,13 @@
             [query-search.common :refer :all]))
 
 ;;; Максимальное количество одновременных запросов
-(def max-concurrent-requests (settings/get-setting "max-concurrent-requests"))
+(def max-concurrent-requests (settings/get-setting :max-concurrent-requests))
 
 ;;; Очередь выполнения
 (def queue-channel (chan max-concurrent-requests))
 
 ;;; Инициализируем свободные слоты в очереди
 (dotimes [n max-concurrent-requests] (>!! queue-channel true))
-
-(defn fake-request
-  "Подставной запрос для тестирования."
-  [params]
-  (future
-    (Thread/sleep (:delay params))
-    {:body params :uuid (:uuid params)}))
 
 (defn execute-request
   "Выполняет запрос, дожидаясь его завершения, чтобы убрать его из очереди."
@@ -48,9 +41,7 @@
     (fn
       [request]
       (spy "Входящие параметры загрузки:"
-        (if (:fake request) ; Подставной или нормальный запрос
-          [fake-request (assoc request :uuid (generate-uuid))]
-          [http/request (hash-map :uuid (generate-uuid) :url (:url request) :query-params (:params request))])))
+        [http/request (hash-map :uuid (generate-uuid) :url (:url request) :query-params (:params request))]))
     requests))
 
 (defn crawl

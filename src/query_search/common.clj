@@ -12,3 +12,10 @@
   "Возвращает уникальный идентификатор"
   []
   (str (UUID/randomUUID)))
+
+(defn string-to-int
+  "Преобразует строку в число."
+  [x]
+  (cond (= x "") 0
+        (string? x) (Integer/parseInt x)
+        :else x))

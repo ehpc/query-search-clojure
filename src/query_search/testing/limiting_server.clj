@@ -1,10 +1,8 @@
-(ns query-search.limiting-server
+(ns query-search.testing.limiting-server
   "Сервер для тестирования ограничений по запросам."
   (:require [org.httpkit.server :refer [run-server with-channel on-close send!]]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]))
-
-;;; TODO
-(def max-allowed-concurrent-requests 2)
+            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [query-search.common :refer [string-to-int]]))
 
 ;;; Текущее количество одновременных запросов
 (def current-concurrent-requests-count (atom 0))
@@ -24,21 +22,22 @@
   (swap! current-concurrent-requests-count dec))
 
 
-(defn limiting-server-handler
+(defn server-handler
   "Обработчик входящих запросов."
   [request]
   ;; Увеличиваем счетчик одновременных запросов
   (swap! current-concurrent-requests-count inc)
   ;; Если счетчик запросов превысил максимально допустимое значение, возвращаем статус ошибки
-  (if (> @current-concurrent-requests-count max-allowed-concurrent-requests)
+  (if (> @current-concurrent-requests-count (-> request :params :max-concurrent-requests string-to-int))
     fail-response
     ;; В противном случае принимаем запрос
     (with-channel request channel
                   (on-close channel on-channel-close)
+                  (Thread/sleep 200) ; Задержка, чтобы пул запросов не очищался слишком быстро
                   (send! channel (assoc success-response :body (-> request :params :return))))))
 
 
 (defn start
   "Запуск сервера."
   []
-  (run-server (wrap-defaults limiting-server-handler api-defaults) {:port 9197}))
+  (run-server (wrap-defaults server-handler api-defaults) {:port 9197}))

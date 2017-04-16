@@ -13,7 +13,7 @@
       #(spy
          "Сформировали запрос для поиска по блогам:"
          (hash-map
-           :url (settings/get-setting "api-url")
+           :url (settings/get-setting :api-url)
            :params {"text" %
-                    "numdoc" (settings/get-setting "numdoc")}))
+                    "numdoc" (settings/get-setting :numdoc)}))
       keywords)))

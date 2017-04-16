@@ -22,6 +22,6 @@
 (defn spy
   "Логирует возвращая значение."
   [& args]
-  (if settings/dev?
+  (if true ; TODO dev?
     (apply-macro 'taoensso.timbre/spy (cons :debug args))
     (last args)))
