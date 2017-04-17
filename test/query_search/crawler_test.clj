@@ -1,26 +1,17 @@
 (ns query-search.crawler-test
   "Тестирование загрузчика веб-страниц."
   (:require [clojure.test :refer :all]
+            [query-search.testing.fixtures :refer [limiting-server-fixture]]
             [query-search.common :refer [string-to-int]]
-            [query-search.testing.limiting-server :as server]
             [query-search.crawler :refer [crawl]]
             [query-search.settings :as settings]))
 
 (def max-concurrent-requests (settings/get-setting :max-concurrent-requests))
 
 ;;; Запрос на ограничивающий сервер
-(def limiting-server-request {:url "http://localhost:9197/"
+(def limiting-server-request {:url "http://localhost:4242/"
                               :params {"return" 1
                                        "max-concurrent-requests" max-concurrent-requests}})
-
-
-(defn limiting-server-fixture
-  "Fixture для тестирования одновременных запросов к серверу.
-   Запускает и останавливает ограничивающий сервер."
-  [f]
-  (let [stop (server/start)]
-    (f)
-    (try (stop :timeout 500) (catch Exception e)))) ; Иногда вылетает из-за багнутого HttpServer.stop в http-kit
 
 
 (defn aggregate-limiting-server-responses

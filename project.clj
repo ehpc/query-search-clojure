@@ -11,7 +11,8 @@
                  [com.github.kyleburton/clj-xpath "1.4.11"]
                  [com.taoensso/timbre "4.8.0"]
                  [com.taoensso/tufte "1.1.1"]
-                 [ring-logger "0.7.7"]]
+                 [ring-logger "0.7.7"]
+                 [org.clojure/algo.monads "0.1.6"]]
   :main ^:skip-aot query-search.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}

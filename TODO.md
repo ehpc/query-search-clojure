@@ -10,9 +10,11 @@
 * Упростить код в целом (->, mapcat и т.п.)
 * Избавиться от фейковых аругментов
 * Упростить тесты, убрать лишние зависимости от модулей
-* get-settings перевести на keyword
+* ~~get-settings перевести на keyword~~
+* :refer :all -> :refer []
 * Вынести log, profile, common в своей неймспейс
 * Отрефкторить все ;TODO
+* Убрать лишние require
 * BDD-spec пересмотреть в контексте concurrency
 * Нарисовать схему concurrency
 * Пофиксить README

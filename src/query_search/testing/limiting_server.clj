@@ -2,7 +2,8 @@
   "Сервер для тестирования ограничений по запросам."
   (:require [org.httpkit.server :refer [run-server with-channel on-close send!]]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
-            [query-search.common :refer [string-to-int]]))
+            [query-search.common :refer [string-to-int]]
+            [query-search.settings :refer [get-setting]]))
 
 ;;; Текущее количество одновременных запросов
 (def current-concurrent-requests-count (atom 0))
@@ -40,4 +41,4 @@
 (defn start
   "Запуск сервера."
   []
-  (run-server (wrap-defaults server-handler api-defaults) {:port 9197}))
+  (run-server (wrap-defaults server-handler api-defaults) {:port (get-setting :testing-server-port)}))

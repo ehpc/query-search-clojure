@@ -1,7 +1,8 @@
 (ns query-search.testing.fake-server
   "Сервер для тестирования API."
   (:require [org.httpkit.server :refer [run-server with-channel on-close send!]]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]))
+            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [query-search.settings :refer [get-setting]]))
 
 
 ;;; Ответ API-сервера
@@ -19,4 +20,4 @@
 (defn start
   "Запуск сервера."
   []
-  (run-server (wrap-defaults server-handler api-defaults) {:port 9197}))
+  (run-server (wrap-defaults server-handler api-defaults) {:port (get-setting :testing-server-port)}))

@@ -7,6 +7,8 @@
 ## Changed
 - Concurrency теперь тестируется через limiting-server, а не crawler
 - Конфигурация разделена на default и dev
+- blog-search/search использует монаду reader для доступа к настройкам приложения
+- parser_test больше не зависит от blog-search
 
 ## 0.1.0 - 2017-04-07
 ### Added

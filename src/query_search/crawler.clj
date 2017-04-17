@@ -46,7 +46,8 @@
 
 (defn crawl
   "Загружает веб-страницы."
-  [requests & {:keys [full-response?] :or {:full-response? false}}]
+  [requests]
+
   (log "Загружаем веб-страницы:" (apply str requests))
   (future
     (let [n (count requests)
@@ -72,4 +73,4 @@
                                  request-collection))]
         (spy "Отсортированные ответы запросов:" responses-sorted)
         ;; Возвращаем либо весь ответ, либо только текст ответа
-        (if full-response? responses-sorted (map :body responses-sorted))))))
+        (map :body responses-sorted)))))
