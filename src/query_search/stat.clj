@@ -1,8 +1,8 @@
 (ns query-search.stat
   "Модуль сбора статистики по используемым доменам в блогах."
-  (:require [query-search.blog-search :as blog-search]
-            [query-search.parser :as parser]
-            [query-search.logger :refer :all]))
+  (:require [query-search.misc.logger :refer [log spy]]
+            [query-search.blog-search :as blog-search]
+            [query-search.parser :as parser]))
 
 (defn- extract-stats
   "Формирует статистику по предоставленныму списку доменов.

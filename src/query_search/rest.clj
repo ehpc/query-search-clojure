@@ -1,41 +1,41 @@
 (ns query-search.rest
   "Модуль REST API"
-  (:require [compojure.core :refer :all]
+  (:require [cheshire.core :as cheshire]
+            [compojure.core :as compojure]
             [compojure.route :as route]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
-            [ring.logger :as logger]
             [org.httpkit.server :as server]
-            [cheshire.core :refer [generate-string]]
+            [ring.logger :as logger]
+            [ring.middleware.defaults :as middleware]
+            [clojure.core.async :as async]
             [clojure.string :refer [blank?]]
-            [clojure.core.async :refer [go]]
-            [query-search.logger :refer :all]
-            [query-search.stat :refer [get-domain-stats-for-blogs]]))
+            [query-search.misc.logger :refer [log spy]]
+            [query-search.stat :as stat]))
 
 (defn process-search
   "Обработчик поискового запроса."
   [{{query :query} :params} channel]
   (log "Обрабатываем запрос /search:" query)
-  (go
+  (async/go
     (let [stats (try
-                  @(get-domain-stats-for-blogs
+                  @(stat/get-domain-stats-for-blogs
                      (vec (filter (complement blank?) (if (vector? query) query (vector query)))))
                   (catch Exception e (log (.getMessage e)) {}))]
       (log "Полученная статистика:" stats)
-      (server/send! channel (generate-string stats {:pretty true})))))
+      (server/send! channel (cheshire/generate-string stats {:pretty true})))))
 
 (def search
   "Маршрут API /search."
-  (GET "/search" request (server/with-channel request channel (process-search request channel))))
+  (compojure/GET "/search" request (server/with-channel request channel (process-search request channel))))
 
 (def error
   "Маршрут 404."
   (route/not-found "Неверный запрос."))
 
-(defroutes rest-routes
+(compojure/defroutes rest-routes
   "Задаёт маршруты."
   search
   error)
 
 (def handler
   "Головной обработчик запросов."
-  (logger/wrap-with-logger (wrap-defaults rest-routes api-defaults)))
+  (logger/wrap-with-logger (middleware/wrap-defaults rest-routes middleware/api-defaults)))

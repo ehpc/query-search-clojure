@@ -1,7 +1,7 @@
-(ns query-search.common
+(ns query-search.misc.common
   "Модуль общих функций."
-  (:import [java.util Date UUID]
-           [java.text SimpleDateFormat]))
+  (:import [java.text SimpleDateFormat]
+           [java.util Date UUID]))
 
 (defn get-datetime
   "Возвращает дату и время с миллисекундами."

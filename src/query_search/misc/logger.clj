@@ -1,4 +1,4 @@
-(ns query-search.logger
+(ns query-search.misc.logger
   "Модуль логирования."
   (:require [taoensso.timbre :as timbre]
             [taoensso.timbre.appenders.core :as appenders]

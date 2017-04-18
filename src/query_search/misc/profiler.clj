@@ -1,7 +1,7 @@
-(ns query-search.profiler
+(ns query-search.misc.profiler
   "Модуль профилирования."
   (:require [taoensso.tufte :as tufte]
-            [query-search.common :refer :all]))
+            [query-search.misc.common :as common]))
 
 (defmacro profile
   "Замеряет время выполнения формы, возвращает миллисекунды."
@@ -11,4 +11,4 @@
 (defn label
   "Выводит метку на экран."
   [message]
-  (println (format "\n[%s] %s\n" (get-datetime) message)))
+  (println (format "\n[%s] %s\n" (common/get-datetime) message)))

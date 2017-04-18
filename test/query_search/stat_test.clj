@@ -1,6 +1,6 @@
 (ns query-search.stat-test
-  (:require [clojure.test :refer :all]
-            [query-search.stat :refer :all]))
+  (:require [clojure.test :refer [deftest testing is]]
+            [query-search.stat :as stat]))
 
 ;;; Тесты предназначены для запуска в режиме dev
 
@@ -14,32 +14,32 @@
   "Статистика по доменам из поиска по блогам."
   (testing "Сценарий: Статистика по одному ключевому слову при первом запуске."
     (is
-      (> (get @(get-domain-stats-for-blogs ["scala"]) "scala.com" 0) 3)
+      (> (get @(stat/get-domain-stats-for-blogs ["scala"]) "scala.com" 0) 3)
       "Домен scala.com встречается больше 3 раз."))
   (testing "Сценарий: Статистика по одному ключевому слову при повторном запросе."
     (is
-      (> (get @(get-domain-stats-for-blogs ["scala"]) "scala.com" 0) 3)
+      (> (get @(stat/get-domain-stats-for-blogs ["scala"]) "scala.com" 0) 3)
       "Домен scala.com встречается больше 3 раз."))
   (testing "Сценарий: Статистика по другому ключевому слову."
     (is
-      (> (get @(get-domain-stats-for-blogs ["bdd"]) "bdd.com" 0) 3)
+      (> (get @(stat/get-domain-stats-for-blogs ["bdd"]) "bdd.com" 0) 3)
       "Домен bdd.com встречается больше 3 раз."))
   (testing "Сценарий: Статистика по двум запросам сразу."
     (is
-      (let [stats @(get-domain-stats-for-blogs ["puppy" "kitty"])]
+      (let [stats @(stat/get-domain-stats-for-blogs ["puppy" "kitty"])]
         (and
           (> (get stats "puppy.com" 0) 3)
           (> (get stats "kitty.com" 0) 3)))
       "Домены puppy.com и kitty.com встречаются больше 3 раз каждый."))
   (testing "Сценарий: Запрос с русскими буквами."
     (is
-      (> (get @(get-domain-stats-for-blogs ["запрос"]) "vk.com" 0) 1)
+      (> (get @(stat/get-domain-stats-for-blogs ["запрос"]) "vk.com" 0) 1)
       "Домен vk.com встречается больше 1 раза."))
   (testing "Сценарий: Запрос с повторяющимися ссылками в ответе API Yandex"
     (is
-      (= (get @(get-domain-stats-for-blogs ["повтор"] [repeated-xml repeated-xml]) "repeated5times.com" 0) 1)
+      (= (get @(stat/get-domain-stats-for-blogs ["повтор"] [repeated-xml repeated-xml]) "repeated5times.com" 0) 1)
       "Домен repeated5times.com встречается ровно 1 раз."))
   (testing "Адекватная реакция, когда блогов не найдено."
     (is
-      (empty? @(get-domain-stats-for-blogs ["не-найдено"] [empty-xml]))
+      (empty? @(stat/get-domain-stats-for-blogs ["не-найдено"] [empty-xml]))
       "Список доменов пустой.")))
