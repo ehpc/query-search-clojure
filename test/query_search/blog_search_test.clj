@@ -1,7 +1,7 @@
 (ns query-search.blog-search-test
   "Тестирование поиска по блогам."
   (:require [clojure.string :refer [includes?]]
-            [clojure.test :refer [deftest testing is]]
+            [clojure.test :refer [deftest is testing use-fixtures]]
             [query-search.blog-search :as blog-search]
             [query-search.settings :as settings]
             [query-search.testing.fixtures :as fixtures]))

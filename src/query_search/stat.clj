@@ -1,6 +1,7 @@
 (ns query-search.stat
   "Модуль сбора статистики по используемым доменам в блогах."
-  (:require [query-search.misc.logger :refer [log spy]]
+  (:require [clojure.algo.monads :refer [ask domonad reader-m]]
+            [query-search.misc.logger :refer [log spy]]
             [query-search.blog-search :as blog-search]
             [query-search.parser :as parser]))
 
@@ -17,18 +18,16 @@
 
 (defn get-domain-stats-for-blogs
   "Возвращает статистику доменов для блогов по ключевым словам"
-  ([keywords]
-   (log "Получаем статистику для" keywords)
-   (if (empty? keywords)
-       (future {})
-       (future
-         (extract-stats
-           (apply
-             concat
-             (map
-               parser/parse
-               @(blog-search/search keywords)))))))
-  ;; Для тестирования
-  ([keywords fake-xml]
-   (log "Получаем mock-статистику для" keywords)
-   (future (extract-stats (apply concat (map parser/parse fake-xml))))))
+  [keywords]
+  (domonad reader-m [env (ask)]
+    (do
+      (log "Получаем статистику для" keywords)
+      (if (empty? keywords)
+          (future {})
+          (future
+            (extract-stats
+              (apply
+                concat
+                (map
+                  parser/parse
+                  @((blog-search/search keywords) env)))))))))

@@ -1,8 +1,7 @@
 (ns query-search.misc.logger
   "Модуль логирования."
   (:require [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.core :as appenders]
-            [query-search.settings :as settings]))
+            [taoensso.timbre.appenders.core :as appenders]))
 
 ;;; Настройки логирования
 (def log-file-name "log/default.log")

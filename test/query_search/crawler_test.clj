@@ -1,6 +1,6 @@
 (ns query-search.crawler-test
   "Тестирование загрузчика веб-страниц."
-  (:require [clojure.test :refer [deftest testing is]]
+  (:require [clojure.test :refer [deftest is testing use-fixtures]]
             [query-search.crawler :as crawler]
             [query-search.misc.common :as common]
             [query-search.settings :as settings]
