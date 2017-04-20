@@ -17,17 +17,7 @@
                  (map (fn [[k v]] (hash-map v k)) domain-list))))))
 
 (defn get-domain-stats-for-blogs
-  "Возвращает статистику доменов для блогов по ключевым словам"
-  [keywords]
-  (domonad reader-m [env (ask)]
-    (do
-      (log "Получаем статистику для" keywords)
-      (if (empty? keywords)
-          (future {})
-          (future
-            (extract-stats
-              (apply
-                concat
-                (map
-                  parser/parse
-                  @((blog-search/search keywords) env)))))))))
+  "Возвращает статистику доменов для блогов по входящим XML."
+  [xmls]
+  (extract-stats
+    (mapcat parser/parse xmls)))

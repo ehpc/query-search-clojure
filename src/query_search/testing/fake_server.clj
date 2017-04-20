@@ -16,16 +16,22 @@
 (def response-empty "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<rss xmlns:yablogs=\"urn:yandex-blogs\" xmlns:wfw=\"http://wellformedweb.org/CommentAPI/\" version=\"2.0\">\n  <channel>\n    <link>https://yandex.ru/blogs/rss/search?numdoc=10&amp;text=puppy</link>\n    <title>puppy — Яндекс.Поиск по блогам</title>\n    <image>\n      <url>https://img.yandex.net/i/logo100x43.png</url>\n      <title>Поиск Яндекса по блогам</title>\n      <link>https://yandex.ru/blogs</link>\n      <width>100</width>\n      <height>43</height>\n    </image>\n    <ttl>60</ttl>\n    <generator>yandex.ru/blogs</generator>\n    <webMaster>support@blogs.yandex.ru</webMaster>\n    <copyright>noindex</copyright>\n    <description>Результаты поиска Яндекса по блогам и форумам по запросу: «puppy»</description>\n    <yablogs:count>0</yablogs:count>\n    <yablogs:more>https://yandex.ru/blogs/rss/search?p=1&amp;text=puppy&amp;numdoc=10</yablogs:more>\n  </channel>\n</rss>\n")
 
 
+(defn get-response-for-query
+  "Возвращает ответ по входящему запросу."
+  [keyword]
+  (condp = keyword
+    "repeated" response-repeated
+    "not-found" response-empty
+    (string/replace response "__DOMAIN__" keyword)))
+
+
 (defn server-handler
   "Обработчик входящих запросов."
   [request]
-  (let [text (-> request :query-params (get "text"))]
+  (let [keyword (-> request :query-params (get "text"))]
     {:status 200
      :headers {"Content-Type" "text/html"}
-     :body (condp = text
-             "repeated" response-repeated
-             "not-found" response-empty
-             (string/replace response "__DOMAIN__" text))}))
+     :body (get-response-for-query keyword)}))
 
 
 (defn start
