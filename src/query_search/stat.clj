@@ -2,7 +2,6 @@
   "Модуль сбора статистики по используемым доменам в блогах."
   (:require [clojure.algo.monads :refer [ask domonad reader-m]]
             [query-search.misc.logger :refer [log spy]]
-            [query-search.blog-search :as blog-search]
             [query-search.parser :as parser]))
 
 (defn- extract-stats
